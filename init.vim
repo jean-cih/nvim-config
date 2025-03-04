@@ -11,6 +11,7 @@ set shiftwidth=4
 set expandtab
 set autoindent
 set fileformat=unix
+set colorcolumn=79
 filetype indent on      " load filetype-specific indent files
 
 inoremap jk <esc>
@@ -143,4 +144,32 @@ EOF
 
 command! NullLsFormat lua vim.lsp.buf.format({ async = true })
 
-set colorcolumn=79
+lua << EOF
+  -- Загрузите lspconfig
+  local nvim_lsp = require('lspconfig')
+
+  -- Настройка clangd
+  nvim_lsp.clangd.setup {
+    cmd = { "clangd" },
+    filetypes = { "c", "cpp", "objc", "objcpp", "cuda" },
+    root_dir = require('lspconfig/util').root_pattern("compile_commands.json", ".git"),
+    on_attach = function(client, bufnr)
+      --  Функция on_attach для настройки keymaps и options
+
+      local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
+      local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
+
+      buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
+
+      local opts = { noremap=true, silent=true }
+
+      buf_set_keymap('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', opts)
+      buf_set_keymap('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
+      buf_set_keymap('n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
+      buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
+      buf_set_keymap('n', '<leader>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
+      buf_set_keymap('n', '<leader>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
+    end,
+    capabilities = require('cmp_nvim_lsp').default_capabilities(), -- Для nvim-cmp
+  }
+EOF
