@@ -25,7 +25,7 @@ Plug 'hrsh7th/nvim-cmp'
 Plug 'hrsh7th/cmp-nvim-lsp'
 Plug 'saadparwaiz1/cmp_luasnip'
 Plug 'L3MON4D3/LuaSnip'
-
+Plug 'numToStr/Comment.nvim'
 
 " color schemas
 Plug 'morhetz/gruvbox'  " colorscheme gruvbox
@@ -173,3 +173,5 @@ lua << EOF
     capabilities = require('cmp_nvim_lsp').default_capabilities(), -- Для nvim-cmp
   }
 EOF
+
+lua require('Comment').setup()
